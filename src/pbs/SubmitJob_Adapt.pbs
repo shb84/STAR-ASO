@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # ----------------QSUB Parameters----------------- #
-#PBS -N Job-Name-Here
+#PBS -N Enter-Job-Name-Here
 #PBS -l nodes=1:ppn=24
 #PBS -l pmem=8gb
 #PBS -l walltime=24:00:00
-#PBS -q asdl
+#PBS -q Enter-Queue-Name-Here
 #PBS -j oe
 #PBS -o Job.out
 
