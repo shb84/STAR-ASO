@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# ----------------QSUB Parameters----------------- #
+#PBS -N Job-Name-Here
+#PBS -l nodes=1:ppn=24
+#PBS -l pmem=8gb
+#PBS -l walltime=24:00:00
+#PBS -q asdl
+#PBS -j oe
+#PBS -o Job.out
+
+# ----------------Load Modules-------------------- #
+cd $PBS_O_WORKDIR
+module load starccmplus/12.02.010
+module load impi/5.0.1.035
+module load anaconda3/4.2.0
+
+# ----------------Print Some Info-------------------- #
+echo Running on host `hostname`
+echo Time is `date`
+echo Directory is `pwd`
+echo This jobs runs on the following processors:
+NODES=`cat $PBS_NODEFILE`
+echo $NODES
+# Compute the number of processors
+NPROCS=`wc -l < $PBS_NODEFILE`
+echo This job has allocated $NPROCS nodes
+
+# ---------------Execute Script ------------------ #
+
+# Replace fields appropriately: 
+# {bin}   = python script to run (i.e. RunDOE.py)
+# {doe}   = DOE file name (i.e. DOE.csv) 
+# {pod}   = user podkey number 
+# {jar}   = name of local folder containing *.jar files (e.g. ASO_jar)
+# {sim}   = name of simulation file to be created (e.g. Airfoil.sim) 
+# {macro} = name of macro to execute (i.e. AdaptMesh.java or SetFlightConditionAndRun.java) 
+python -u {bin} -hpc -nodes $PBS_NODEFILE -pwd $PBS_O_WORKDIR  -N $NPROCS -jar $PBS_O_WORKDIR/{jar} -sim $PBS_O_WORKDIR/{sim} -doe $PBS_O_WORKDIR/{doe} -macro $PBS_O_WORKDIR/{macro} -lic '1999@flex.cd-adapco.com' -pod {pod} >> python.out 
+
+# ----------------Print end time-------------------- #
+echo Done... Time is `date`
+
+#####
+# To run interactively, modify the following example command: 
+# qsub -I -X -q asdl -l nodes=1:ppn=24,walltime=2:00:00,pmem=8gb

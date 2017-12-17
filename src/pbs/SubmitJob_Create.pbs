@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# ----------------QSUB Parameters----------------- #
+#PBS -N My-Job-Name
+#PBS -l nodes=1:ppn=24
+#PBS -l pmem=8gb
+#PBS -l walltime=24:00:00
+#PBS -q asdl
+#PBS -j oe
+#PBS -o Job.out
+
+# ----------------Load Modules-------------------- #
+cd $PBS_O_WORKDIR
+module load starccmplus/12.02.010
+module load impi/5.0.1.035
+module load anaconda3/4.2.0
+
+# ----------------Print Some Info-------------------- #
+echo Running on host `hostname`
+echo Time is `date`
+echo Directory is `pwd`
+echo This jobs runs on the following processors:
+NODES=`cat $PBS_NODEFILE`
+echo $NODES
+# Compute the number of processors
+NPROCS=`wc -l < $PBS_NODEFILE`
+echo This job has allocated $NPROCS nodes
+
+# ---------------Execute Script ------------------ #
+
+# Replace fields appropriately: 
+# {pod}   = user podkey number 
+# {jar}   = name of local folder containing *.jar files (e.g. ASO_jar)
+# {sim}   = name of simulation file to be created (e.g. Airfoil.sim) 
+# {macro} = name of macro to execute (i.e. CreateAndRunAirfoil.java)  
+starccm+ -podkey {pod} -licpath 1999@flex.cd-adapco.com -mpi intel -power -np $NPROCS -classpath $PBS_O_WORKDIR/{jar} -machinefile $PBS_NODEFILE -batch $PBS_O_WORKDIR/{macro} -new {sim} >> starccm.out
+
+# ----------------Print end time-------------------- #
+echo Done... Time is `date`
+
+#####
+# To run interactively, modify the following example command: 
+# qsub -I -X -q asdl -l nodes=1:ppn=24,walltime=2:00:00,pmem=8gb
